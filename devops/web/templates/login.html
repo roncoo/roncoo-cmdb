@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta name="robots" content="index,follow">
+    <meta name="Author" content="reboot">
+
+    <link href="/static/img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/alert/sweet-alert.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+          padding-top: 40px;
+          padding-bottom: 40px;
+          background-color: #eee;
+        }
+        .form-signin {
+          max-width: 330px;
+          padding: 15px;
+          margin: 0 auto;
+        }
+        </style>
+ 
+    <title>Devops平台 - 管理员登陆</title>
+    </head>
+    <body>
+        <!--loginbox again-->
+    <div class="container">
+            <form class="form-signin" id="loginform">
+                <h2 class="form-signin-heading" style="text-align: center;">用户登录</h2>
+                <div class="form-group">
+                  <input type="text" class="form-control" name="username"  placeholder="用户名"/>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" name="passwd" placeholder="密码"/>
+                </div>
+                <button type="submit" class="btn btn-lg btn-primary btn-block">登录</button>
+                <a id='forget'>忘记密码</a>
+            </form>
+      </div>
+
+	
+
+<script type="text/javascript" src="/static/vendor/alert/sweet-alert.min.js"></script>
+<script type="text/javascript" src="/static/vendor/jquery/jquery.min.js"></script>
+
+<script type="text/javascript">
+/* 忘记密码提示*/
+$("#forget").click(function() {
+    str="请联系管理员帮您重置密码"+'\n'+"邮箱：18878774260@163.com"
+    swal(str)
+});
+
+/*用户登录*/
+$('#loginform').on('submit',function(){
+    var str = $('#loginform').serialize()
+	console.log(str)
+    $.post('/login',str,function(data){
+        data = JSON.parse(data)
+        if (data['code']==0){
+            location.href="/"
+        }else{
+            str = data['errmsg']
+            swal({
+                title: "Error",
+                text:str,
+                type:"error",
+                confirmButtonText: "Cool"
+            },function(){
+                location.href="/login"
+            }); 
+
+        }
+    })
+        return false;
+
+})
+
+</script>
+
+
+</body></html>

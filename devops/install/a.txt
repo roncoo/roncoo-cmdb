@@ -1,0 +1,12 @@
+Flask 
+Flask-Bootstrap 
+Flask-Moment
+Flask-Script 
+Flask-Migrate
+Flask-SQLAlchemy 
+Flask-WTF 
+MySQL-python 
+requests
+Flask-JSONRPC
+psutil
+zabbix_client

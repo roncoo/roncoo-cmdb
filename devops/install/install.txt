@@ -1,0 +1,162 @@
+****
+龙果学院开源项目:目前完成的功能：基于cobbler的二次开发，方便不会的机房和运维人员快速装机，CMDB的快速添加，zabbix 的模板管理，把CMDB同步到zabbix 数据库，然后批量绑定模板，删除维护周期，，，后期更新批量管理和发布系统
+
+****
+
+
+
+
+1、安装沙河环境：这样可以把环境用测试当中剥离出来
+
+yum install install python-virtualenv
+
+启动沙河环境之后：
+
+virtualenv venv
+
+2、mysql 安装：
+
+yum install mysql-server
+
+3、必要安装软件:
+
+pip install -r a.txt
+
+4、安装cobbler:
+
+4.1 ：把光驱放到/dev/cdrom目录下:后面要挂载镜像系统，还有设置dhcp地址段。注意和生产环境的dhcp冲突
+修改cobbler对应的IP和dhcp的地址段。具体修改那里见脚本内容：
+
+4.2：执行脚本安装 ./cobbler.sh
+
+完成后执行：cobbler list 看到类似结果即可：
+
+[root@www install]# cobbler list
+distros:
+   centos-6.5-x86_64
+
+profiles:
+   centos-6.5-x86_64
+
+systems:
+
+repos:
+
+images:
+
+mgmtclasses:
+
+packages:
+
+files:
+
+4.3：安装cobbler-web:
+
+yum -y install cobbler-web
+
+
+4.4 设置用户名密码
+
+为已存在的用户cobbler重置密码
+
+htdigest /etc/cobbler/users.digest "Cobbler" cobbler  
+
+添加新用户
+
+htdigest /etc/cobbler/users.digest "Cobbler" xiaoluo
+
+4.5 配置cobbler web可以登录
+
+sed -i 's/authn_denyall/authn_configfile/g' /etc/cobbler/modules.conf
+4.6 重启Cobbler与http
+
+/etc/init.d/cobblerd restart 
+
+/etc/init.d/httpd restart
+4.7 访问Cobbler Web页面,输入用户名密码能登录即可
+
+浏览器访问登录页面https://192.168.63.205/cobbler_web
+
+然后登录名就是：xiaoluo  密码是输入密码
+
+4.8:把demo.cfg文件copy到目录：/var/lib/cobbler/kickstarts/ 目录下
+
+
+5、安装zabbix：
+省略：记住api文件的安放位置：
+
+
+
+6、创建数据库和表文件：
+
+6.1:创建数据库随意取名，这里用devops举例：
+
+
+CREATE DATABASE IF NOT EXISTS devops DEFAULT CHARSET utf8 COLLATE 'utf8_general_ci';
+
+6.2: 导入表结构和一些简单初始数据:
+
+mysql -uroot -p123456 devops< create.sql  
+
+mysql -uroot -p123456 devops<devops.sq
+
+6.3:访问web时候默认账户为admin密码为123456
+
+
+
+7、修改/conf/service.conf 配置文件：
+
+[common]
+mysql_host=127.0.0.1
+mysql_port=3306
+mysql_user=root
+mysql_passwd=123456
+mysql_db=devops
+mysql_charset=utf8
+passport_key=123456
+smtp_host=****
+smtp_user=*****
+smtp_pass=*****
+
+[api]
+port=2000
+bind=0.0.0.0
+
+[web]
+port=2001
+api_host=127.0.0.1:2000
+
+[zabbix]
+zabbix_url = http://192.168.63.205/zabbix
+zabbix_user = Admin
+zabbix_password = zabbix
+
+[cobbler]
+cobbler_url=http://192.168.63.205/cobbler_api
+cobbler_user=xiaoluo
+cobbler_password=123456
+
+
+8、要是没有安装zabbix之类的就把api目录下面的__init__文件加载模块注释掉，因为默认初始化会报错：
+cat api/__init__.py
+
+#import zabbix
+#import zbhost
+#import zabbix_api
+
+还有启动文件:runapi的zabbix选项：
+
+
+9、设置日志文件生成目录：
+
+mkdir /var/log/api/
+mkdir /var/log/web/
+
+
+
+10、安装完成之后启动：
+
+python runweb
+
+python runapi
+

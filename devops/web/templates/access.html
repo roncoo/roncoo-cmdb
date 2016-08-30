@@ -1,0 +1,828 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">CMDB</a><span class="divider"></span></li>
+<li class="active">服务器管理</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>服务器列表</h5>
+      <button style="float:right;" class="btn btn-default btn-sm" id="updatezabbix">同步zabbix</button>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加服务器详情</button>
+   
+   </div> <!--widget-title end-->
+    
+<!--添加服务器信息模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">添加服务器</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group">
+        <label class="control-label col-sm-3">供应商：</label>
+        <div class="col-sm-9">
+         <input type="text" name="supplier" class="form-control"  datatype="*" errormsg="必须是2-16个字符" />
+        </div>
+    </div> <!--供应商-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">联系供应商：</label>
+        <div class="col-sm-9">
+            <input  type="text" name="supplier_phone" class="form-control" datatype="*" errormsg="必须是2-10个中文字符" />
+        </div> 
+    </div><!--供应商联系方式-->
+    <div class="control-group">
+		<label class="control-label col-sm-3">所属IDC: </label>
+		<div class="col-sm-9">
+		<select id="idc_id" name="idc_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+		</select>
+		</div >  
+	</div> <!--所属IDC-->
+    <div class="control-group">
+        <label  class="control-label col-sm-3">所属机柜：</label>
+        <div class="col-sm-9">
+	<select id="cabinet_id" name="cabinet_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                </select>
+	
+        </div>
+    </div><!--所属机柜-->
+    <div class="control-group">
+        <label  class="control-label col-sm-3">主机IP：</label>
+        <div class="col-sm-9">
+        <select id="ip" name="ip" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                </select>
+
+        </div>
+    </div><!--主机-->
+
+    <div class="control-group">
+        <label class="control-label col-sm-3">机柜内位置：</label>
+        <div class="col-sm-9">
+            <input type="text" name="cabinet_pos" class="form-control" datatype="*" errormsg="手机格式不对"  />
+        </div>   
+    </div><!--机柜位置-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">机器到保日期：</label>
+        <div class="col-sm-9">
+             <input  type="text" name="expire" id="datetimepicker" class="form-control" datatype="*" errormsg="输入字符" />
+        </div>   
+    </div> <!--机器到保日期-->
+      <div class="control-group">
+        <label class="control-label col-sm-3">机器上架日期：</label>
+        <div class="col-sm-9">
+            <input type="text" name="server_up_time" id="timepicker"  class="form-control" datatype="*" errormsg="手机格式不对"  />
+        </div>
+    </div><!--接口人电话-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">业务线：</label>
+        <div class="col-sm-9">
+            <input type="text" name="server_purpose" class="form-control" datatype="*" errormsg="必须是1-2个字符"  />
+        </div>
+    </div><!--宿主机-->
+   <div class="control-group">
+        <label class="control-label col-sm-3">服务线：</label>
+        <div class="col-sm-9">
+            <input type="text" name="server_run" class="form-control" datatype="*" errormsg="必须是1-2个字符"  />
+        </div>
+    </div><!--宿主机-->
+   
+    <div class="control-group">
+        <label class="control-label col-sm-3">宿主机：</label>
+        <div class="col-sm-9">
+            <input type="text" name="host" class="form-control" datatype="*" errormsg="必须是1-2个字符"  />
+        </div>
+    </div><!--宿主机-->    
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+
+<!--更新服务器数据模态窗-->
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">更新服务器信息</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">hostname：</label>
+        <div class="col-sm-9">
+         <input type="text" name="hostname" id="uphostname" class="form-control"  datatype="*" errormsg="必须是2-16个字符" />
+        </div>
+    </div> <!--主机名-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">IP地址：</label>
+        <div class="col-sm-9">
+            <input  type="text" name="ip" id="upip"  class="form-control" datatype="*" errormsg="必须是2-4个中文字符" />
+        </div> 
+    </div><!--IP地址-->
+    <div class="control-group">
+                <label class="control-label col-sm-3">VM_status: </label>
+                <div class="col-sm-9">
+                <input  type="text" name="vm_status" id="upvm_status" class="form-control" datatype="*" errormsg="必须是2-20个中文字符" />
+                </div >
+        </div> <!--是否虚拟化-->
+    <div class="control-group">
+        <label  class="control-label col-sm-3">SN号：</label>
+        <div class="col-sm-9">
+            <input  type="email" id="upst" name="st" class="form-control"  datatype="*" errormsg="Email格式不正确" />
+        </div>
+    </div><!--SN号-->
+        <div class="control-group">
+        <label class="control-label col-sm-3">uuid值：</label>
+        <div class="col-sm-9">
+            <input type="text" name="uuid" id="upuuid" class="form-control" datatype="*" errormsg="手机格式不对"  />
+        </div>
+    </div><!--UUID值-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">生产商：</label>
+        <div class="col-sm-9">
+             <input  type="text" name="manufacturers" id="upmanufacturers" class="form-control"  datatype="*" errormsg="必须是2-4个中文字符" />
+        </div>
+    </div> <!--生产商-->
+      <div class="control-group">
+        <label class="control-label col-sm-3">服务器型号：</label>
+        <div class="col-sm-9">
+            <input type="text" name="server_type" id="upserver_type" class="form-control" datatype="*" errormsg="手机格式不对"  />
+        </div>
+    </div><!--服务器型号-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">CPU型号：</label>
+        <div class="col-sm-9">
+            <input type="text" name="server_cpu" id="upserver_cpu" class="form-control" datatype="*" errormsg="必须是1-2个字符"  />
+        </div>
+    </div><!--CPU型号-->
+
+    <div class="control-group">
+         <label class="control-label col-sm-3">操作系统：</label>
+           <div class="col-sm-9">
+            <input type="text" name="os" id="upos" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--操作系统-->
+    <div class="control-group">
+         <label class="control-label col-sm-3">磁盘大小：</label>
+           <div class="col-sm-9">
+            <input type="text" name="server_disk" id="upserver_disk" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--磁盘大小-->
+     <div class="control-group">
+         <label class="control-label col-sm-3">内存大小：</label>
+           <div class="col-sm-9">
+            <input type="text" name="server_mem" id="upserver_mem" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--内存大小-->
+     <div class="control-group">
+         <label class="control-label col-sm-3">MAC地址：</label>
+           <div class="col-sm-9">
+            <input type="text" name="mac_address" id="upmac_address" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--MAC地址-->
+     <div class="control-group">
+         <label class="control-label col-sm-3">生产日期：</label>
+           <div class="col-sm-9">
+            <input type="text" name="manufacture_date" id="upmanufacture_date" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--生产日期-->
+   <div class="control-group">
+         <label class="control-label col-sm-3">供应商：</label>
+           <div class="col-sm-9">
+            <input type="text" name="supplier" id="upsupplier" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--供应商-->
+    <div class="control-group">
+         <label class="control-label col-sm-3">联系供应商：</label>
+           <div class="col-sm-9">
+            <input type="text" name="supplier_phone" id="upsupplier_phone" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--联系供应商-->
+    <div class="control-group">
+                <label class="control-label col-sm-3">所属IDC: </label>
+                <div class="col-sm-9">
+                <select id="upidc_id" name="idc_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                </select>
+                </div >
+        </div> <!--所属IDC-->
+     <div class="control-group">
+        <label  class="control-label col-sm-3">所属机柜：</label>
+        <div class="col-sm-9">
+        <!--      
+            <input  type="text"  name="cabinet_id" class="form-control"  datatype="*" errormsg="Email格式不正确" />
+        -->
+        <select id="upcabinet_id" name="cabinet_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                </select>
+
+        </div>
+    </div><!--所属-->
+
+    <div class="control-group">
+         <label class="control-label col-sm-3">机柜内位置：</label>
+           <div class="col-sm-9">
+            <input type="text" name="cabinet_pos" id="upcabinet_pos" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--机柜内位置-->    
+    <div class="control-group">
+         <label class="control-label col-sm-3">到保日期：</label>
+           <div class="col-sm-9">
+            <input type="text" name="expire" id="upexpire" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--到保日期-->
+    <div class="control-group">
+         <label class="control-label col-sm-3">上架日期：</label>
+           <div class="col-sm-9">
+            <input type="text" name="server_up_time" id="upserver_up_time" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--上架日期-->
+    <div class="control-group">
+         <label class="control-label col-sm-3">业务线：</label>
+           <div class="col-sm-9">
+            <input type="text" name="server_purpose" id="upserver_purpose" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--业务线-->
+    <div class="control-group">
+         <label class="control-label col-sm-3">服务线：</label>
+           <div class="col-sm-9">
+            <input type="text" name="server_run" id="upserver_run" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--服务线-->
+     <div class="control-group">
+         <label class="control-label col-sm-3">宿主机：</label>
+           <div class="col-sm-9">
+            <input type="text" name="host" id="uphost" class="form-control" datatype="*" errormsg="必须是1-2个字符" />
+        </div>
+    </div><!--宿主机-->
+
+
+    <div class="form-group">
+         <div class="modal-footer">
+              			<button class="btn btn-primary" id="upbtn" >确认更新</button> 
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+   
+     </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--修改用户密码模态窗-->
+<div id="ChangePasswdModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">更改用户密码</h4>
+	  </div><!--modal-header end-->
+
+      <div class="modal-body">
+      <p hidden id="errorMsg" class="text-danger" style="color:red">更改用户密码</p> <!-- foe error msg-->
+        <form class="form-horizontal" id="ChangePasswdForm">
+        <input id="passwdid" type="hidden"  name="passwdid">  <!--update need id-->
+     	<div class="form-group">
+            <label class="col-sm-2 control-label">新密码</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control" type="password"  name="changepasswd" />
+      		</div> 
+        </div>
+    	<div class="form-group">
+     		<div class="modal-footer">	
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+         	</div> 
+      </div><!--button end-->
+     </form>
+   </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" id="update" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4>同步到zabbix</h4>
+            </div>
+            <div class="modal-body">
+                <div id="host_list" ></div>
+                <select class="form-control" id="zabbix_group">
+                </select>
+                <br>
+                <br>
+                <button class="btn btn-primary" id="create">提交</button>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-default" data-dismiss="modal" aria-hidden="true" type="button" value="取消">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    <div class="widget-content">
+    <!--用户列表-->
+ 		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+			        <th>主机名</th>
+                                <th>IP地址</th> 
+                                <th>出厂日期</th> 
+				<th>供应商</th>
+				<th>联系供应商</th>
+				<th>到保日期</th>
+				<th>上架日期</th>
+				<th>所属机房</th>
+				<th>所属机柜</th>
+                                <th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+name='server'
+function datatable(){
+    $('#datatable').DataTable({
+	"sScrollX": "75%",
+         "sScrollXInner": "110%",
+         "bScrollCollapse": true,
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+/* list all data*/
+function list(){
+    url = "/listapi?method="+name
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   //Object {count: 3, code: 0, users: Array[3]}
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+	       '<td>'+v['hostname']+'</td>'+
+               '<td>'+v['ip']+'</td>'+ 
+               '<td>'+v['manufacture_date']+'</td>'+ 
+	       '<td>'+v['supplier']+'</td>'+
+	       '<td>'+v['supplier_phone']+'</td>'+
+	       '<td>'+v['expire']+'</td>'+
+	       '<td>'+v['server_up_time']+'</td>'+ 
+	       '<td>'+v['idc_name']+'</td>'+
+	       '<td>'+v['cabinet_name']+'</td>'+
+               '<td>'+
+               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+list()
+
+/*增加列出机房idc信息，并且拼接成复选框*/
+
+function idclist(){
+    var url = "/listapi?method=idc"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['idc_name']+'</option>'
+            })
+            $("#idc_id").html(str)
+            $('#idc_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#idc_id").multiselect('refresh')
+        }else{
+                swal("error","获取IDC列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+
+/*增加服务器，列出cabinet信息，拼接成下拉列表*/
+function cabinetlist(){
+    var url = "/listapi?method=cabinet"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
+            })
+            $("#cabinet_id").html(str)
+            $('#cabinet_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#cabinet_id").multiselect('refresh')
+        }else{
+                swal("error","获取机柜列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+function hostip(){
+    var url = "/listapi?method=server"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['ip']+'">'+v['ip']+'</option>'
+            })
+            $("#ip").html(str)
+            $('#ip').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#ip").multiselect('refresh')
+        }else{
+                swal("error","获取机柜列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+
+
+/*点击按钮，显示添加IDC模态窗*/
+$("#addBtn").on('click',function(){
+    idclist()
+    cabinetlist()
+    hostip()
+    $('#addModal').modal('show')
+    $('#datetimepicker').datetimepicker({
+    minView: "month", //选择日期后，不会再跳转去选择时分秒 
+　　format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式 
+　　language: 'zh-CN', //汉化 
+　　autoclose:true //选择日期后自动关闭 
+
+        }); 
+     $('#timepicker').datetimepicker({
+    minView: "month", //选择日期后，不会再跳转去选择时分秒
+　　format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式
+　　language: 'zh-CN', //汉化
+　　autoclose:true //选择日期后自动关闭
+
+        });  
+ 
+})
+
+
+
+
+$("#updatezabbix").on('click',function(){
+    $('#update').modal('show')
+    zabbix_group = $("#zabbix_group");
+    sync_host_list = $("#host_list");
+    var url = "/listapi?method=zabbix"
+    $.getJSON('/listapi?method=zbhost', function(data){
+                sync_host_list.empty();
+                server_list = JSON.parse(data['result']);
+		if(server_list['code'] == 0){ 
+                $.each(server_list['result'], function(n, obj){
+                    html = '<div class="checkbox">';
+                    html += '<label>';
+                    html += '<input type="checkbox" name="zabbix_hosts" class="zabbix_hosts" value="'+obj.ip+'">';
+                    html += obj.ip;
+                    html += '</label>';
+                    html += '</div>';
+                    sync_host_list.append(html);
+                });
+		}
+		else {
+
+			swal(data['errmsg']);
+		}
+
+            });
+    $.getJSON(url,function(data){ 
+                data = JSON.parse(data['result']);	
+		if(data['code'] == 0){
+                $.each(data['result'], function(n, obj){
+
+                    zabbix_group.append("<option value='"+obj.groupid+"'>"+obj.name+"</option>");
+                })
+		}else
+		{
+			swal(data['errmsg'])
+		}
+          })
+     $("#create").click(function(){
+            hostids = new Array();
+            $("input[name='zabbix_hosts']:checked").each(function (i, n) {
+                hostids[i] = n.value
+            });
+            zabbix_groupid = $("#zabbix_group").val();	   
+            $.post('/zabbixapi',{method:"add",hostids:hostids.toString(), groupid:zabbix_groupid},
+                    function(data){
+	                data=JSON.parse(data);   //将json串转换为对象，然后取值
+            		data = JSON.parse(data['result']) //object
+            		console.log(data)	
+                        if(data['code'] == 0){
+			    swal({
+                            title:"success",
+                            text:"添加成功",
+                            type:"success",
+                            confirmButtonText:'添加zabbi主机成功'
+                    },function(){
+                        location.reload()
+                    }) 	 
+                        }else{
+			swal(data['errmsg'])                        
+                        }  
+
+                     })                          
+                 })   /*end of create*/
+             });  /*end of all*/
+
+
+
+
+
+/*检查表单数据是否合法*/
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+/*server 添加*/
+$('#addForm').on('submit',function(){
+        var str = $('#addForm').serialize()
+        var data={'method':name,'formdata':str}
+        $.post('/updateserverapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加IDC成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addModal').modal('hide')
+                            window.location.reload();
+                         })
+            }else{
+                swal("error","创建IDC失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
+
+
+/*修改用户密码*/
+$("tbody").on('click','.passwd-btn',function(){
+    var id = $(this).attr('data-id')
+    $('#passwdid').val(id) 
+    $('#ChangePasswdModal').modal('show')
+})
+$('#ChangePasswdForm').on('submit',function(){
+    var str = $('#ChangePasswdForm').serialize()
+    var url = '/user/changepasswd'
+    $.post(url,str,function(result){
+        result = JSON.parse(result)
+        if (result['code']==0){
+            swal({
+                title:"success",
+                text:"密码更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#ChangePasswdModal').modal('hide')
+                })
+        }else{
+            $('#errorMsg').html('failed '+result['errmsg']).show()
+        }
+    })
+    return false
+})
+
+
+/*更新server，并且获取idc列表拼成下拉菜单*/
+function upidclist(){
+    var url = "/listapi?method=idc"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['idc_name']+'</option>'
+            })
+            $("#upidc_id").html(str)
+            $('#upidc_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#upidc_id").multiselect('refresh')
+        }else{
+                swal("error","获取IDC列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+
+/*更新server，列出cabinet信息，拼接成下拉列表*/
+function upcabinetlist(){
+    var url = "/listapi?method=cabinet"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data.result, function(k,v){
+                str += '<option value="'+v['id']+'">'+v['name']+'</option>'
+            })
+            $("#upcabinet_id").html(str)
+            $('#upcabinet_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#upcabinet_id").multiselect('refresh')
+        }else{
+                swal("error","获取机柜列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+
+/*点击按钮，显示IDC用户模态窗,并获取用户的信息*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result']['id'])
+          $('#uphostname').val(data['result']['hostname'])
+          $('#upip').val(data['result']['ip'])
+          $('#upvm_status').val(data['result']['vm_status'])
+          $('#upst').val(data['result']['st'])
+          $('#upuuid').val(data['result']['uuid'])
+	  $('#upmanufacturers').val(data['result']['manufacturers'])
+	  $('#upserver_type').val(data['result']['server_type'])
+	  $('#upserver_cpu').val(data['result']['server_cpu'])
+	  $('#upos').val(data['result']['os']) 
+	  $('#upserver_disk').val(data['result']['server_disk'])
+	  $('#upserver_mem').val(data['result']['server_mem'])
+	  $('#upmac_address').val(data['result']['mac_address'])
+	  $('#upmanufacture_date').val(data['result']['manufacture_date'])
+	  $('#upsupplier').val(data['result']['supplier'])
+          $('#upsupplier_phone').val(data['result']['supplier_phone'])
+	  $('#upcabinet_pos').val(data['result']['cabinet_pos'])
+	  $('#upexpire').val(data['result']['expire'])
+	  $('#upserver_up_time').val(data['result']['server_up_time'])
+	  $('#upserver_purpose').val(data['result']['server_purpose'])
+	  $('#upserver_run').val(data['result']['server_run'])
+	  $('#uphost').val(data['result']['host'])
+	   upidclist()
+           upcabinetlist()
+          $('#updateModal').modal('show')
+	      $('#upexpire').datetimepicker({
+   		 minView: "month", //选择日期后，不会再跳转去选择时分秒
+　　		format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式
+　　		language: 'zh-CN', //汉化
+　　		autoclose:true //选择日期后自动关闭
+
+        	});
+     		$('#upserver_up_time').datetimepicker({
+    		minView: "month", //选择日期后，不会再跳转去选择时分秒
+　　		format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式
+　　		language: 'zh-CN', //汉化
+　　		autoclose:true //选择日期后自动关闭
+        	});
+
+	
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+/*获取用户所属的角色，拼接为下拉列表*/
+function s_rolelist(id){
+    var url = "/getapi?method=selected&id="+id+"&m_table=user&field=r_id&s_table=role"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        var str=''
+        $.each(data.result, function(k,v){
+            console.log(k,v)
+            str +='<option value='+v['id']+" "+v['selected']+'>'+v['name']+
+            '</option>'
+        })
+        console.log(str)
+        $("#upr_id").html(str)
+        $('#upr_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+        $('#upr_id').multiselect('refresh');
+    })
+
+}
+
+/*检查表单数据是否合法*/
+$("#updateForm").Validform({
+    btnSubmit:"#upbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+
+/*更新IDC信息*/
+$('#updateForm').on('submit',function(){
+        var str = $('#updateForm').serialize()
+        var data = {'method':name,'formdata':str}
+        $.post('/updateapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#updateModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+/*删除IDC*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+name+"&id="+id
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+}) 
+{% endblock %}

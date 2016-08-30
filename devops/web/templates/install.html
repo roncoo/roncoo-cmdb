@@ -1,0 +1,249 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">cobbler</a><span class="divider"></span></li>
+<li class="active">装机管理</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>装机操作列表</h5>
+   </div> <!--widget-title end-->
+    
+
+    <div class="widget-content">
+    <!--操作列表-->
+ 		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>id</th>
+				<th>ip</th>
+				<th>操作时间</th>
+				<th>操作系统</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+name='idc'
+function datatable(){
+    $('#datatable').DataTable({
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+/* list all data*/
+function list(){
+    url = "/listapi?method="+"install"
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data.result)   //Object {count: 3, code: 0, users: Array[3]}
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['id']+'</td>'+  
+               '<td>'+v['ip']+'</td>'+  
+               '<td>'+v['install_time']+'</td>'+  
+               '<td>'+v['os']+'</td>'+ 	  
+     		 '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+list()
+/*点击按钮，显示添加IDC模态窗*/
+$("#addBtn").on('click',function(){
+    $('#addModal').modal('show')
+})
+/*检查表单数据是否合法*/
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+/*IDC添加*/
+$('#addForm').on('submit',function(){
+        var str = $('#addForm').serialize()
+        var data={'method':name,'formdata':str}
+	console.log(data)
+        $.post('/addapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加IDC成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addModal').modal('hide')
+                            window.location.reload();
+                         })
+            }else{
+                swal("error","创建IDC失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
+
+
+/*修改用户密码*/
+$("tbody").on('click','.passwd-btn',function(){
+    var id = $(this).attr('data-id')
+    $('#passwdid').val(id) 
+    $('#ChangePasswdModal').modal('show')
+})
+$('#ChangePasswdForm').on('submit',function(){
+    var str = $('#ChangePasswdForm').serialize()
+    var url = '/user/changepasswd'
+    $.post(url,str,function(result){
+        result = JSON.parse(result)
+        if (result['code']==0){
+            swal({
+                title:"success",
+                text:"密码更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#ChangePasswdModal').modal('hide')
+                })
+        }else{
+            $('#errorMsg').html('failed '+result['errmsg']).show()
+        }
+    })
+    return false
+})
+
+/*点击按钮，显示IDC用户模态窗,并获取用户的信息*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result']['id'])
+          $('#upname').val(data['result']['name'])
+          $('#upidc_name').val(data['result']['idc_name'])
+          $('#upaddress').val(data['result']['address'])
+          $('#upphone').val(data['result']['phone'])
+          $('#upemail').val(data['result']['email'])
+	  $('#upuser_interface').val(data['result']['user_interface'])
+	  $('#upuser_phone').val(data['result']['user_phone'])
+	  $('#uprel_cabinet_num').val(data['result']['rel_cabinet_num'])
+	  $('#uppact_cabinet_num').val(data['result']['pact_cabinet_num']) 
+          $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+/*获取用户所属的角色，拼接为下拉列表*/
+function s_rolelist(id){
+    var url = "/getapi?method=selected&id="+id+"&m_table=user&field=r_id&s_table=role"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        var str=''
+        $.each(data.result, function(k,v){
+            console.log(k,v)
+            str +='<option value='+v['id']+" "+v['selected']+'>'+v['name']+
+            '</option>'
+        })
+        console.log(str)
+        $("#upr_id").html(str)
+        $('#upr_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+        $('#upr_id').multiselect('refresh');
+    })
+
+}
+
+/*检查表单数据是否合法*/
+$("#updateForm").Validform({
+    btnSubmit:"#upbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+
+/*更新IDC信息*/
+$('#updateForm').on('submit',function(){
+        var str = $('#updateForm').serialize()
+        var data = {'method':name,'formdata':str}
+        $.post('/updateapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#updateModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+/*删除IDC*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+name+"&id="+id
+        console.log(url)
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+})   
+{% endblock %}

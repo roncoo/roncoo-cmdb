@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">用户管理</a><span class="divider"></span></li>
+<li class="active">个人中心</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-briefcase"></i>您的个人资料</h5>
+	  <h5 style="float:right;" id="edit"><i class="fa fa-edit"></i>编辑个人资料 </h5> 
+	  <h5 style="float:right;" id="passwd"><i class="fa fa-edit"></i>修改密码&nbsp;&nbsp;&nbsp;</h5>
+   </div> <!--widget-title end-->
+
+
+<!--更新个人信息模态窗-->
+<div id="editModal"  class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span ariaa-hidden="true">&times;</span></button>
+ 	   <h3 class="modal-title">修改个人资料</h3>
+     </div> <!--modal-header end-->
+     <div class="modal-body">
+     <form class="form-horizontal" id="updateForm">
+       	<input type="hidden"  name="id" value="{{ user.id }}">
+     	<div class="form-group">
+            <label class="col-sm-2 control-label">用户名</label>
+     		 <div  class="col-sm-10">
+       		 	<input  name="username" class="form-control" value="{{ user.username }}">
+      		</div> 
+       	</div> <!-- username  end-->
+     	<div class="form-group" >
+			 <label class="col-sm-2 control-label">姓名</label>
+     		 <div class="col-sm-10">
+       		 	<input  name="name" class="form-control"  value="{{ user.name }}">
+      		</div> 
+       	</div> <!--name  end-->
+     	<div class="form-group">
+            <label class="col-sm-2 control-label">E-mail</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control" name="email" value="{{ user.email }}">
+      		</div> 
+       	</div> <!--email  end-->
+     	<div class="form-group">
+            <label class="col-sm-2 control-label">联系电话</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control"  name="mobile" value="{{ user.mobile }}">
+      		</div>  
+       	</div> <!--mobile  end-->
+    	<div class="form-group">
+     		<div class="modal-footer">
+			 	<button class="btn btn-primary"  id = "upinfobtn" >更新</button>
+				<button class="btn btn-warning exit-btn" data-dismiss="modal">退出</button>
+            </div> 
+      </div><!--button end-->
+    </form><!--form end-->
+  </div> <!--modal-body end -->
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div> <!--modal end-->
+<!--模态窗结束-->
+
+<!--更新密码模态窗-->
+<div id="updatepasswd"  class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+     <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span ariaa-hidden="true">&times;</span></button>
+	<h3 class="modal-title">修改个人密码</h3>
+    </div> <!--modal-header end-->
+    <div class="modal-body">
+    <form class="form-horizontal" id="updatepw">
+     	<div class="form-group"> 
+			<label class="col-sm-2 control-label">旧密码</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control" type="password"  name="oldpasswd" >
+      		</div> 
+       	</div> <!-- oldpasswd end-->
+     	<div class="form-group">
+			<label class="control-label col-sm-2">新密码</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control" type="password"  name="newpasswd" >
+      		</div> 
+       	</div> <!--newpasswd  end-->
+    	<div class="form-group">
+     		<div class="modal-footer">
+				<button class="btn btn-primary" id = "uppwbtn" >更新</button>
+			 	<button class="btn btn-warni ng exit-btn" data-dismiss="modal">退出</button>
+            </div> 
+      </div><!--button end-->
+    </form><!--form end--> 
+  </div> <!--modal-body end -->
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div> <!--modal end-->
+<!--模态窗结束-->
+
+
+    <div class="widget-content">
+	<table class="table table-bordered">
+	<tr>
+	<td style="vertical-align:middle; text-align:center;"><h2>{{user.name}}<h2></td>
+	<td>
+		<table class="table table-striped table-bordered table-hover">
+		<tr><td>邮箱</td><td>{{user.email}}</td></tr>
+		<tr><td>手机</td><td>{{user.mobile}}</td></tr>
+		<tr><td>角色</td><td>{{user.role}}</td></tr>
+		<tr><td>权限</td><td>{{user.perm|safe()}}</td></tr>
+		<table>
+	</td>
+	<tr>
+	</table>
+
+    </div><!--widget-content end-->
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+
+name='user'
+
+/*修改个人信息模态窗 */
+$("#edit").on('click',function(){
+    $('#editModal').modal('show')  
+})
+
+
+/*用户自己个人信息修改*/
+$("#upinfobtn").on('click',function(){
+   var str = $("#updateForm").serialize()
+   var data = {'method':name,'formdata':str}
+   $.post('/updateapi',data,function(data){
+        data=JSON.parse(data)
+        console.log(data)
+        data = JSON.parse(data['result']) //object
+        if(data['code'] == 0){  
+            swal({
+                title:"success",
+                text:"更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#editModal').modal('hide')
+                    location.reload()
+                })
+        }else{
+                swal("error", data['errmsg'],"error")
+        }
+   })
+        return false
+})
+
+/*修改密码的模态窗显示 */
+$("#passwd").on('click',function(){
+    $('#updatepasswd').modal('show')  
+})
+
+
+/*用户自己修改密码*/
+$("#uppwbtn").on('click',function(){
+   var str = $("#updatepw").serialize()
+   var url = '/user/chpwdoneself'
+   $.post(url,str,function(data){
+        data=JSON.parse(data)
+        console.log(data)
+        if (data['code']==0){   //recevie json object
+             swal("更新成功")
+             $('#updatepasswd').modal('hide')
+        }else{
+             swal(data['errmsg'])
+              }
+   })
+        return false
+})
+{% endblock %}

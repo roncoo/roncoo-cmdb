@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">发布系统</a><span class="divider"></span></li>
+<li class="active">项目管理</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>项目管理</h5>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加项目</button>
+   </div> <!--widget-title end-->
+
+    <div class="widget-content">  
+    <!--项目列表-->
+		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			 <tr>
+			 	<th>项目名</th>
+				<th>负责人</th>
+				<th>项目开发者</th>
+				<th>创建时间</th>
+				<th>状态</th>
+				<th>备注</th>
+				<th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+    <!--添加项目模态窗-->
+
+    <!--更新项目模态窗-->
+
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

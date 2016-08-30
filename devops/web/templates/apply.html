@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">发布系统</a><span class="divider"></span></li>
+<li class="active">申请发布</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>申请发布</h5>
+   </div> <!--widget-title end-->
+
+    <div class="widget-content">  
+    <!--项目列表-->
+		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+		 	<tr>
+		 		<th>项目名</th>
+				<th>最新版本</th>
+				<th>最新申请人</th>
+				<th>申请时间</th>
+				<th>发布状态</th>
+				<th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

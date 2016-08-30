@@ -1,0 +1,295 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">用户管理</a><span class="divider"></span></li>
+<li class="active">权限管理</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i class="fa fa-table fa-fw"></i>权限管理</h5>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加权限</button>
+   </div> <!--widget-title end-->
+
+<!--添加权限模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">添加权限</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group"> 
+        <label class="control-label col-sm-3">权限名：</label>
+        <div class="col-sm-9">
+         <input type="text" name="name" class="form-control"  datatype="s1-16" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--权限名添加-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">中文名：</label>
+        <div class="col-sm-9">
+            <input  type="text" name="name_cn" class="form-control" datatype="*" errormsg="不能为空" />
+        </div> 
+    </div><!--中文名添加-->
+    <div class="control-group">
+	    <label class ="control-label col-sm-3">URL: </label>
+		<div class="col-sm-9">
+         <input type="text" name="url" class="form-control"  datatype="*" errormsg="不能为空" />
+		</div>    
+	</div> <!--URL-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">备注：</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="3" class="form-control"  datatype="*" errormsg="不能为空"  name="comment"></textarea>
+        </div>   
+    </div>  <!--备注-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+			 	<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div> 
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--更新权限模态窗-->
+ 
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">更新权限</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+     <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+    <div class="control-group"> 
+        <label class="control-label col-sm-3">权限名：</label>
+        <div class="col-sm-9">
+         <input type="text" id="upname" name="name" class="form-control"  datatype="s5-16" errormsg="必须是5-16个字符" />
+        </div>
+    </div> <!--权限名添加-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">中文名：</label>
+        <div class="col-sm-9">
+            <input  type="text" id="upname_cn" name="name_cn" class="form-control" datatype="*" errormsg="不能为空" />
+        </div> 
+    </div><!--中文名添加-->
+    <div class="control-group">
+		<label class ="control-label col-sm-3">URL: </label> 
+		<div class="col-sm-9">
+         <input type="text" id="upurl" name="url" class="form-control"  datatype="*" errormsg="不能为空" />
+		</div >   
+	</div> <!--URL-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">备注：</label>
+        <div class="col-sm-9">
+        <textarea id="upcomment" rows="3" class="form-control"  name="comment"></textarea>
+        </div>    
+    </div>  <!--备注-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="upbtn" >确认更新</button>
+			 	 <button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>  
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="widget-content">
+    <!--权限列表-->
+		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>权限名</th>
+				<th>权限中文名</th>
+				<th>URL</th>
+				<th>备注</th>
+				<th>操作</th> 
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+
+name='power'
+function datatable(){
+    $('#datatable').DataTable({
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+/* list all data*/
+function list(){
+    url = "/listapi?method="+name
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['name']+'</td>'+  
+               '<td>'+v['name_cn']+'</td>'+  
+               '<td>'+v['url']+'</td>'+  
+               '<td>'+v['comment']+'</td>'+ 
+               '<td>'+
+               '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("tbody").html(str)
+                datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+list()
+
+
+/*点击按钮，显示添加用户模态窗*/
+$("#addBtn").on('click',function(){
+    $('#addModal').modal('show')
+})
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+/*用户添加*/
+$('#addForm').on('submit',function(){
+        var str = $('#addForm').serialize()
+        var data={'method':name,'formdata':str}
+        console.log(data)
+        $.post('/addapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addModal').modal('hide')
+                            window.location.reload();
+                         })
+            }else{
+                swal("error","创建用户失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
+
+
+
+/*点击按钮，显示更新用户模态窗,并获取用户的信息*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result']['id'])
+          $('#upname').val(data['result']['name'])
+          $('#upname_cn').val(data['result']['name_cn'])
+          $('#upurl').val(data['result']['url'])
+          $('#upcomment').val(data['result']['comment'])
+          $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+
+/*更新用户信息*/
+$('#updateForm').on('submit',function(){
+        var str = $('#updateForm').serialize()
+        var data = {'method':name,'formdata':str}
+        $.post('/updateapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){   
+            swal({
+                title:"success",
+                text:"更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#updateModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+/*删除用户*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+name+"&id="+id
+        console.log(url)
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+})   
+{% endblock %}

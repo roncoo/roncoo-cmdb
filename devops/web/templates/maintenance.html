@@ -1,0 +1,290 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">Zabbix</a><span class="divider"></span></li>
+<li class="active">维护周期</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i classd="fa fa-table fa-fw"></i>维护列表</h5>
+      <button style="float:right;" class="btn btn-primary btn-sm" id="addBtn">添加维护</button>
+   </div> <!--widget-title end-->
+    
+<!--添加用户模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">添加周期</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group">
+        <label class="control-label col-sm-3">周期名称：</label>
+        <div class="col-sm-9">
+         <input type="text" name="name" class="form-control"  datatype="*" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--IDC简称-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">维护主机：</label>
+        <div class="col-sm-9">
+        <select id="host_id" name="host_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                    </select> 
+        </div> 
+    </div><!--IDC全名-->
+    <br /> <br />
+    <div class="control-group">
+		<label class="control-label col-sm-3">维护时长: </label>
+		<div class="col-sm-9">
+		<input  type="text" name="time" class="form-control" datatype="s1-3" errormsg="必须是1-3个字符" />
+		</div >  
+	</div> <!--IDC地址-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--更新用户模态窗-->
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">更新IDC信息</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">机房编号：</label>
+        <div class="col-sm-9">
+         <input type="text" name="name" id="upname" class="form-control"  datatype="*" errormsg="必须是2-16个字符" />
+        </div>
+    </div> <!--机房编号-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">机房位置：</label>
+        <div class="col-sm-9">
+        <select id="upidc_id" name="idc_id" class ="form-control multiselect" datatype="*" errormsg="角色不能为空" multiple="multiple" >
+                    </select>
+        </div>
+    </div><!--IDC全名-->
+
+    <div class="control-group">
+                <label class="control-label col-sm-3">电源功率: </label>
+                <div class="col-sm-9">
+                <input  type="text" name="power" id="uppower" class="form-control" datatype="s1-2" errormsg="必须是2-20个字符" />
+                </div >
+        </div> <!--电源功率-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="upbtn" >确认更新</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+   
+     </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+    <div class="widget-content">
+    <!--用户列表-->
+ 		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>包含主机</th>
+				<th>起始</th>
+				<th>结束</th>
+				<th>操作</th>
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+name='cabinet'
+function datatable(){
+    $('#datatable').DataTable({
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+/* list all data*/
+function list(){
+    url = "/listapi?method="+"zabbix_maintenance"
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data.result)   //Object {count: 3, code: 0, users: Array[3]}
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){   
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['name']+'</td>'+  
+               '<td>'+v['hosts']+'</td>'+  
+               '<td>'+v['active_since']+'</td>'+  
+	       '<td>'+v['active_till']+'</td>'+
+               '<td>'+ 
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['maintenanceid']+'">删除</button>'+
+               '</td>'+ '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+list()
+
+/*列出所有zabbix主机的信息，拼成复选框*/
+
+function templist(){
+    var url = "/listapi?method=zbhost_allhost"
+    $.getJSON(url, function(data){
+        data=JSON.parse(data['result'])
+        console.log(data)
+        if (data['code']== 0){
+            var str = ''
+            $.each(data['result'], function(n,obj){
+                str += '<option value="'+obj['hostid']+'">'+obj['host']+'</option>'
+            }) 
+            $("#host_id").html(str)
+            $('#host_id').multiselect({maxHeight:200, enableCaseInsensitiveFiltering: true})
+            $("#host_id").multiselect('refresh')
+        }else{
+                swal("error","获取zabbix列表失败," + data['errmsg'],"error")
+        } //if end
+    })
+
+}
+
+
+
+/*点击按钮，显示添加IDC模态窗*/
+$("#addBtn").on('click',function(){
+    templist()
+    $('#addModal').modal('show')
+})
+/*检查表单数据是否合法*/
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+/*zabbix维护周期添加*/
+$('#addForm').on('submit',function(){
+        var str = $('#addForm').serialize()
+        var data={'method':"zabbix_maintenance",'formdata':str}
+        $.post('/addapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加维护周期成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addModal').modal('hide')
+                            window.location.reload();
+                         })
+            }else{
+                swal("error","创建周期失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
+
+/*点击按钮，显示IDC用户模态窗,并获取用户的信息*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+          $('#upid').val(data['result']['id'])
+          $('#upname').val(data['result']['name'])      
+          $('#uppower').val(data['result']['power'])
+	  upidclist()
+          $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+
+/*检查表单数据是否合法*/
+$("#updateForm").Validform({
+    btnSubmit:"#upbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+
+/*删除维护周期*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+"zabbix_maintenance"+"&id="+id
+        console.log(url)
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+})   
+{% endblock %}
