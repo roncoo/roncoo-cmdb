@@ -125,7 +125,7 @@ def run():
     send(res)
 
 def send(data):
-    url = "http://192.168.63.233:2000/api"
+    url = "http://192.168.63.216:2000/api"
     r = requests.post(url, headers=headers,json=data)
     print r.status_code
     print r.content

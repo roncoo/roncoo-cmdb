@@ -1,0 +1,48 @@
+{% raw %}
+<script type="text/ng-template" id="module_dialog.html">
+<div class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><span class="glyphicon glyphicon-star"></span> {{module.name}}(<span ng-repeat="param in module.params">{{param.name}}: {{param.type}}<span ng-if="!$last">, </span></span>) -> {{module.return.type}}</h4>
+      </div>
+      <div class="modal-body">
+        <h5><b>Summary:</b> <span ng-if="!module.summary">None</span>{{module.summary}}</h5>
+        <h5><b>Idempotent:</b> {{module.idempotent}}</h5>
+        <ng-form name="nameDialog" novalidate role="form">
+          <div class="form-group input-group-lg">
+            <span ng-repeat="param in module.params">
+              <label class="control-label" for="course">{{param.name}} -> {{param.type}}: </label><input type="text" class="form-control" name="{{param.name}}" id="{{param.name}}" ng-model="param.value" ng-keyup="hitEnter($event)" required>
+              <span class="help-block"></span>
+            </span>
+            <label class="control-label" for="notify">Is a notify?</label><input type="checkbox" class="form-control" name="notify" id="notify" ng-model="module.notify" />
+          </div>
+        </ng-form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-blue btn-sm" ng-click="ok()" ng-disabled="(nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine">Save</button>
+      </div>
+      </div>
+  </div>
+</div>
+</script>
+{% endraw %}
+
+{% raw %}
+<div class="content-main">
+    <div class="page-header"><h1>{{module.name}}(<span ng-repeat="param in module.params">{{param.name}}: {{param.type}}<span ng-if="!$last">, </span></span>) -> {{module.return.type}}</h1></div>
+    <blockquote>{{ module.summary }}</blockquote>
+    <p><b>Request:</b></p>
+    <div class="request-info" style="clear: both" >
+        <pre class="prettyprint"><b>{{ response.config.method }}</b> {{ response.config.url }}
+{{response.headers|json}}</pre>
+    </div>
+    <p><b>Response:</b></p>
+    <div class="response-info">
+        <pre class="prettyprint"><div class="meta nocode"><b>HTTP {{ response.status }}</b>
+{{response_object|json}}
+</div></pre>
+    </div>
+</div>
+{% endraw %}

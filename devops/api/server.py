@@ -70,6 +70,8 @@ def server_select(auth_info,**kwargs):
 	  	cabinet = app.config['cursor'].get_one_result('cabinet', ['name'],{"id":int(i["cabinet_id"])})
 	        i['idc_name'] = str(idc['name'])
 	        i['cabinet_name'] = str(cabinet['name'])
+		i['expire'] = i['expire'].split()[0]
+		i['server_up_time'] = i['server_up_time'].split()[0]
 	        data_result.append(i)
 	    else:
 		data_result.append(i)
@@ -142,10 +144,13 @@ def idc_delete(auth_info,**kwargs):
         return json.dumps({'code': 1,'errmsg':'you not admin,no idc' })
     try:
         data = request.get_json()['params']
+	output = ['id','hostid']
+        fields = data.get('output', output)
         where = data.get('where',None)
         if not where:
             return json.dumps({'code':1, 'errmsg':'must need a condition'})
-        result = app.config['cursor'].execute_delete_sql('server', where)
+     	result = app.config['cursor'].get_one_result('zbhost', fields, where) 
+	print result
         if not result :
             return json.dumps({'code':1, 'errmsg':'result is null'})
         util.write_log('api').info(username, 'delete server successed')

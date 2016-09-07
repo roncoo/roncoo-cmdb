@@ -3,10 +3,11 @@
 from flask import  request
 from . import app , jsonrpc
 from auth import auth_login
-import json, traceback
-import util
+import json, traceback, os
+import util,glob
 import time,datetime
 from zabbix_api import *
+from zabbix_Graph_api import *
 
 #这里是关于用户角色的增删改查及组对应的权限id2name
 def timeturnmap(a):
@@ -281,3 +282,52 @@ def zabbix_unlink_tem(auth_info,**kwargs):
     except:
         util.write_log('api').error("link zabbix templeate  error: %s"  %  traceback.format_exc())
         return json.dumps({'code':1,'errmsg':'link zabbix template failed'})
+
+@jsonrpc.method('zabbix_Graph.add')
+def zabbix_Graph(**kwargs):
+    data = request.get_json()['params'] 
+    stime=datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    values= {"graphid":565,"stime":stime,"period":86400,"width":800,"height":200}
+    graph=ZabbixGraph()
+    graph.GetGraph('http://192.168.63.216/zabbix/chart2.php',values,"/tmp")
+    print "qingchun"
+    return json.dumps({'code':0,'errmsg':'ok'})
+
+@jsonrpc.method('graph.get')
+@auth_login
+def graph_get(auth_info, **kwargs):
+    if auth_info['code'] == 1:
+        return json.dumps(auth_info)
+    username = auth_info['username']
+    try:
+	ret = []
+	stime=datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+	data_where = {}
+	monitor_name = ["CPU load","CPU utilization","Memory usage","Disk space usage /","Network traffic on eth0","Network traffic on em1"]
+        output = ['id','hostid'] 
+        data = request.get_json()['params']	
+        fields = data.get('output', output)
+        where = data.get('where',None)
+	data_where['cmdb_hostid'] = where['id']	
+        if not where:
+            return json.dumps({'code':1, 'errmsg':'must need a condition'})
+	util.graph_file(app.config['zabbix_img_url'])
+        result = app.config['cursor'].get_one_result('zbhost', fields, data_where)
+	grapsh_id=app.config['zabbix'].get_graphid(str(result['hostid']))	
+	for i in grapsh_id:
+	    if i['name'] in monitor_name:
+		values= {"graphid":str(i['graphid']),"stime":stime,"period": 3600,"width":800,"height":200}
+		graph=ZabbixGraph(app.config['zabbix_login_url'],app.config['zabbix_user'],app.config['zabbix_password'])	
+		ret_data = graph.GetGraph(app.config['zabbix_graph_url'],values, app.config['zabbix_img_url'])
+		ret.append(ret_data)
+	img_url = util.graph_img(app.config['zabbix_img_url'])	
+	return json.dumps({'code':0,'result':img_url})
+#	return ret_data
+#        if not result :
+##            return json.dumps({'code':1, 'errmsg':'result is null'})
+#        else:
+#            util.write_log('api').info(username, "select role by id success")
+#            return json.dumps({'code':0,'result':result})
+    except:
+        util.write_log('api').error('select img is error please check: %s'  % traceback.format_exc())
+        return  json.dumps({'code':1,'errmsg':'get img  failed'})

@@ -1,0 +1,8 @@
+../itsdangerous.py
+../itsdangerous.pyc
+./
+dependency_links.txt
+PKG-INFO
+SOURCES.txt
+not-zip-safe
+top_level.txt

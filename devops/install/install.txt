@@ -131,11 +131,13 @@ zabbix_url = http://192.168.63.205/zabbix
 zabbix_user = Admin
 zabbix_password = zabbix
 
+
 [cobbler]
 cobbler_url=http://192.168.63.205/cobbler_api
 cobbler_user=xiaoluo
 cobbler_password=123456
-
+zabbix_login_url = http://192.168.63.216/zabbix/index.php        ###zabbix登录URL
+zabbix_graph_url = http://192.168.63.216/zabbix/chart2.php       ###zabbix图形URL
 
 8、要是没有安装zabbix之类的就把api目录下面的__init__文件加载模块注释掉，因为默认初始化会报错：
 cat api/__init__.py
@@ -160,3 +162,4 @@ python runweb
 
 python runapi
 
+11、主机采集通过sysinfo.py来操作，采集主机之后，手工录入硬件资源

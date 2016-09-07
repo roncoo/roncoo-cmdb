@@ -1,0 +1,16 @@
+{% raw %}
+<div class="content-main">
+    <div class="page-header"><h1>Api.welcome()</h1></div>
+    <blockquote>Welcome to web browsable API</blockquote>
+    <p><b>Request:</b></p>
+    <div class="request-info" style="clear: both" >
+        <pre class="prettyprint"><b>{{ response.config.method }}</b> {{ response.config.url }}
+<span ng-bind-html="response.headers|json|prettyprint"></span></pre>
+    </div>
+    <p><b>Response:</b></p>
+    <div class="response-info">
+        <pre class="prettyprint"><div class="meta nocode"><b>HTTP {{ response.status }}</b></div>
+<span ng-bind-html="response_object|json|prettyprint"></span></pre>
+    </div>
+</div>
+{% endraw %}

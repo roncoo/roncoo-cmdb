@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="{% block app_name %}{% endblock %}">
+<head>
+{% block head %}
+
+  {% block meta %}
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Flask JSON-RPC | Web Browsable API" />
+  <meta name="author" content="Cenobit Techonologies Inc. http://cenobit.es/" />
+  <meta name="robots" content="NONE,NOARCHIVE" />
+  {% endblock %}
+
+  <title>{% block title %}Flask JSON-RPC{% endblock %}</title>
+
+  {% block style %}
+  {% block bootstrap_theme %}
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('browse.static', filename='css/bootstrap.min.css') }}"/> -->
+    <link href="{{ url_for('browse.static', filename='css/bootstrap-theme.css') }}" rel="stylesheet"/>
+  {% endblock %}
+  <link href="{{ url_for('browse.static', filename='css/fonts.css') }}" rel="stylesheet"/>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('browse.static', filename='css/prettify.css') }}"/>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('browse.static', filename='css/loading-bar.min.css') }}"/>
+  {% block include_style %}{% endblock %}
+  {% endblock %}
+
+  <script type="text/javascript">
+    var _URL_PREFIX = '{{url_prefix}}',
+        _SERVICE_URL = '{{service_url}}';
+  </script>
+
+  {% block templates_js %}{% endblock %}
+
+{% endblock %}
+</head>
+
+<body id="{% block bodyid %}{% endblock %}">
+
+  <div class="wrapper" ng-controller="ApplicationCtrl">
+
+  {% block navbar %}
+  <nav id="navbar-main" class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
+    <div class="navbar-header">
+      <a class='navbar-brand' href='https://github.com/cenobites/flask-jsonrpc'>Flask JSON-RPC <span class="version">{{ version }}</span></a>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <!-- Content -->
+  <div id="content" ng-hide="showFakeIntro">
+  {% block content %}{% endblock %}
+  </div>
+  <!-- END Content -->
+
+  </div><!-- ./wrapper -->
+
+  {% block footer %}{% endblock %}
+
+  {% block script %}
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/jquery/jquery-1.8.1-min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/angular.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/angular-route.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/angular-resource.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/angular-sanitize.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/angular-animate.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/ui-bootstrap-0.7.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/ui-bootstrap-tpls-0.7.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/loading-bar.min.js') }}"></script>
+  <!--<script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/angular/dialogs.min.js') }}"></script>-->
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/bootstrap/bootstrap.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/handlebars-v1.1.2.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/libs/prettify-min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/core/directives.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/core/filters.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/core/services.js') }}"></script>
+  {% block include_script %}{% endblock %}
+  <script type="text/javascript" src="{{ url_for('browse.static', filename='js/main.js') }}"></script>
+  {% endblock %}
+
+</body>
+</html>

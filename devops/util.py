@@ -1,9 +1,9 @@
 #!/bin/env python
 # -*- encoding: utf-8 -*-
 
-import os, os.path
+import os, os.path 
 import time,json
-import base64
+import base64,glob
 import hashlib
 import traceback
 import ConfigParser
@@ -80,3 +80,21 @@ def replace_url(name,url):
     with open('/var/lib/cobbler/kickstarts/%s'%name,'w') as w:
         for l in lines:
             w.write(l.replace('urllist',url))
+
+def graph_file(name):
+    try:
+        file = glob.glob(name+'/*') 
+        for i in file:
+	    os.remove(i)
+    except:	
+        return 1
+
+def graph_img(name):
+    try:
+	ret = []
+	file = glob.glob(name+'/*')
+	for i in file:
+	    ret.append(i.split("web")[1])
+	return ret
+    except:
+	return ret

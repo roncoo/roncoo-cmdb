@@ -321,6 +321,40 @@
 </div><!-- /.modal -->
 
 
+
+<!--监控查看 -->
+<div id="monitor"  class="modal fade text-center">
+ <div class="modal-dialog" style="display: inline-block; width: 60%;">
+    <div  class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">监控查看</h4>
+          </div><!--modal-header end-->
+
+      <div class="modal-body">
+      <p hidden id="errorMsg" class="text-danger" style="color:red">监控查看</p> <!-- foe error msg-->
+        <form class="form-horizontal" id="ChangePasswdForm">
+        <input id="passwdid" type="hidden"  name="passwdid">  <!--update need id-->
+        <div class="form-group">
+                 <div class="col-sm-10" id="graph">
+               
+              
+                </div>
+        </div>
+        <div class="form-group">
+                <div class="modal-footer">
+                                <button class="btn btn-warning" data-dismiss="modal">退出</button>
+                </div>
+      </div><!--button end-->
+     </form>
+   </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
 <div class="modal fade" id="update" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -418,6 +452,7 @@ function list(){
 	       '<td>'+v['cabinet_name']+'</td>'+
                '<td>'+
                '<button class="btn btn-primary btn-sm update-btn" data-id="'+v['id']+'">更新</button>'+
+	       '<button class="btn btn-primary btn-sm monitor-btn" data-id="'+v['id']+'">监控</button>'+
                '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
                '</td>'+ '</tr>'          
            })       
@@ -747,6 +782,7 @@ $("tbody").on('click','.update-btn',function(){
       }
     })
 })
+
 /*获取用户所属的角色，拼接为下拉列表*/
 function s_rolelist(id){
     var url = "/getapi?method=selected&id="+id+"&m_table=user&field=r_id&s_table=role"
@@ -824,5 +860,31 @@ $("tbody").on('click','.delete-btn',function(){
 			}
     	})
     }  // end confirm
-}) 
+})
+
+/*点击监控按钮，获取监控数据*/
+$("tbody").on('click','.monitor-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+"graph"+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+	  var str = ''
+	   $.each(data.result, function(n,value){
+		str +='<img src=' + value + " " + 'style="width:100%"/><br >' 
+            })
+	  console.log(str)
+	  $("#graph").html(str)
+          $('#monitor').modal('show')
+        
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+})
+
+
+
+ 
 {% endblock %}

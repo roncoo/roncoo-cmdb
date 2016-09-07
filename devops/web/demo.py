@@ -1,6 +1,6 @@
 #coding:utf-8
 from __future__ import unicode_literals                                                                                                                      
-from flask import Flask, render_template,session,redirect,request
+from flask import Flask, render_template,session,redirect,request,url_for
 from  . import app  
 import requests,json
 import util
@@ -102,6 +102,8 @@ def cobbler(htmlname):
         return render_template(htmlname+'.html',errmsg=validate_result['errmsg'])
 
 
+
+
 #第三方API接口页面
 @app.route('/api/<htmlname>')  
 def api(htmlname):
@@ -127,6 +129,7 @@ def changepasswd():
         url = "http://%s/api/password" % app.config['api_host']
         r = requests.post(url, headers=headers,json=data)
         return r.text
+
 
 #用户修改个人密码
 @app.route("/user/chpwdoneself",methods=['GET','POST'])

@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block app_name %}browse{% endblock %}
+{% block bodyid %}browse{% endblock %}
+
+{% block include_style %}
+<link href="{{ url_for('browse.static', filename='css/bootstrap-browse.css') }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block include_script %}
+<script type="text/javascript" src="{{ url_for('browse.static', filename='js/apps/browse/app.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('browse.static', filename='js/apps/browse/directives.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('browse.static', filename='js/apps/browse/filters.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('browse.static', filename='js/apps/browse/services.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('browse.static', filename='js/apps/browse/controllers.js') }}"></script>
+{% endblock %}
+
+{% block templates_js %}
+{% raw %}
+<script id="menu-module-tooltip" type="text/x-handlebars-template">
+    {{name}}({{#each params}}{{this.name}}: {{this.type}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{return.type}}
+</script>
+{% endraw %}
+{% endblock %}
+
+{% block content %}
+<div class="container" ng-controller="MenuCtrl">
+  <div class="row">
+    <div class="col-sm-3 col-md-3">
+      <div class="row">
+        <div id="logo-section">
+          <div id="logo-loading-box"><div id="logo-loading" ng-show="showSpinner()"></div></div>
+          <a id="logo-link" class="title" href="#/">Web browsable API</a>
+        </div>
+      </div>
+      <div id="box-subscribe" class="row box-subscribe">
+        <a href="https://github.com/cenobites/flask-jsonrpc" class="btn btn-red btn-subscribe"><i class="icon icon-github icon-large"></i> Fork A Repo</a>
+      </div>
+      <div id="scrollable-sections">
+        <ul class="nav nav-tabs nav-stacked">
+          <li><a id="logo-link" href="#/" ng-class="{active:routeIs('/')}"><i class="icon icon-home"></i> Dashboard</a></li>
+          {% raw %}
+          <li class="dropdown" ng-repeat="(package_name, modules) in packages">
+            <a data-toggle="collapse" data-target="#{{package_name}}"><i class="icon icon-folder-open"></i> {{package_name}}</a>
+            <div id="{{package_name}}" class="accordion-body collapse" ng-class="{in:$first}">
+              <ul class="dropdown-submenu">
+                <li ng-repeat="module in modules">
+                  <a ng-click="showReponseObject(module)" ng-class="{active:routeIs(module.name)}" class="disableable" data-placement="bottom" data-toggle="tooltip" tooltip="{{showTooltip(module)}}"><i class="icon icon-caret-right"></i> {{module.name}}</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          {% endraw %}
+        </ul><!--/nav-stacked menu-->
+      <div id="scrollable-sections-top-shadow"></div>
+      <div id="scrollable-sections-bottom-shadow"></div>
+      </div>
+    </div>
+
+    <div ng-controller="ViewerContainerCtrl" id="viewer-container" data-ng-hide="showContentLoaded" class="col-sm-9 col-md-9" style="min-height: 381px;">
+      <div class="row">
+        <div id="viewer-header-container">
+          <div id="viewer-header">
+            <div id="viewer-top-controls-container">
+              <div id="viewer-top-controls">
+                <span style="color: #777777;">A look at what's new in your web browsable API</span>
+
+                <ul class="list-inline pull-right sparkline-box" ng-show="showToolbar">
+                  <li>
+                    <h4 class="blue"><button ng-click="resend()" class="btn btn-blue">Resend</button></h4>
+                  </li>
+                  <li>
+                    <h4 class="blue"><button ng-click="changeParameters()" class="btn btn-green">Change parameters</button></h4>
+                  </li>
+                  <li>
+                    <h4 class="green"><button ng-click="notify()" class="btn btn-gold">Notify</button></h4>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewer-entries-container" class="row">
+        <div id="title-and-status-container" class="row title-and-status-container">
+          <div class="title-and-status-holder">
+            <span id="chrome-title" class="chrome-title">{% raw %}<span ng-repeat="breadcrumb in breadcrumbs">{{breadcrumb}}<span ng-if="!$last"> &#x00bb; </span></span>{% endraw %}</span>
+          </div>
+          <div class="chrome-title-clear" style=""></div>
+        </div>
+
+        <div ng-view></div>
+      </div>
+    </div> <!-- content -->
+
+    <div data-ng-show="showContentLoaded" class="col-sm-9 col-md-9" style="padding-left: 0px; padding-right: 0px;">
+      <div id="viewer-header-container">
+        <div id="viewer-header">
+          <div id="viewer-top-controls-container">
+            <div id="viewer-top-controls">
+              <span style="color: #777777;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-content">
+        <img alt="loading" src="{{ url_for('browse.static', filename='img/iframe-loader.gif') }}">
+        <h1>Just one moment...</h1>
+        Please wait while we get your web browsable API information.
+        <div> </div>
+      </div>
+    </div> <!-- loading content -->
+
+</div>
+</div> <!-- conteiner -->
+{% endblock %}

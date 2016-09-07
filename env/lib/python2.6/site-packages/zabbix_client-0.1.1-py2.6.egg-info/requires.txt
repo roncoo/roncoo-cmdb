@@ -1,0 +1,4 @@
+
+
+[requests]
+requests>=2.2.0

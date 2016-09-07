@@ -1,0 +1,10 @@
+LICENSE
+MANIFEST.in
+README.rst
+setup.cfg
+setup.py
+visitor/__init__.py
+visitor.egg-info/PKG-INFO
+visitor.egg-info/SOURCES.txt
+visitor.egg-info/dependency_links.txt
+visitor.egg-info/top_level.txt

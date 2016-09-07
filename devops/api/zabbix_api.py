@@ -79,6 +79,15 @@ class Zabbix():
           }
 
         return self.zb.host.get(**data)
+  
+    def get_graphid(self,hostid):
+        data = {
+                "selectGraphs": ["graphid","name"],
+                "filter": {"hostid": hostid}
+                }
+
+        ret = self.zb.host.get(**data)
+        return ret[0]['graphs']
 
 
 #zabbix_server = Zabbix("http://192.168.63.233/zabbix","Admin","zabbix")
