@@ -21,3 +21,4 @@ import zbhost
 import zabbix_api
 import cobbler
 import zabbix_Graph_api
+import switch
