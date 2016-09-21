@@ -96,9 +96,9 @@ CREATE DATABASE IF NOT EXISTS devops DEFAULT CHARSET utf8 COLLATE 'utf8_general_
 
 6.2: 导入表结构和一些简单初始数据:
 
-mysql -uroot -p123456 devops< create.sql  
+mysql -uroot -p123456 devops< devops.sql  
 
-mysql -uroot -p123456 devops<devops.sq
+mysql -uroot -p123456 devops< create.sql
 
 6.3:访问web时候默认账户为admin密码为123456
 
