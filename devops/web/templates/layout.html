@@ -176,7 +176,7 @@ button.detail{
             <li><!--资产平台-->
             <a href="#"><i class="fa fa-database fa-fw"></i>CMDB资产平台<span class="fa arrow"></span></a>
             <ul class="nav nav-second-level">
-                {% if info and 'sa' in info.role %}
+                {% if info and 'cmdb' in info.perm %}
                 <li> 
                     <a href="/cmdb/server">硬件资产</a>
                 </li>
