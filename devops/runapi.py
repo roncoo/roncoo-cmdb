@@ -3,7 +3,7 @@
 from api import app, zabbix_api, zabbix_Graph_api
 import os,sys,logging,logging.config
 import db,util
-from celery import Celery
+from celery import Celery,platforms
 
 #session使用需要设置secret_key
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
@@ -27,7 +27,6 @@ app.config.update(cobbler_config)
 app.config.update(img_url)
 app.config.update(zabbix_config)
 #print app.config
-
 
 
 #实例化数据库类，并将实例化的对象导入配置

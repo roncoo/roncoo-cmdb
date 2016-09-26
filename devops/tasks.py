@@ -3,16 +3,22 @@
  
 import smtplib
 from email.mime.text import MIMEText
-import sys 
+import sys,os 
 from celery import Celery,platforms
+import util
 
-celery = Celery('tasks', broker='redis://127.0.0.1:6379/0')
+work_dir = os.path.dirname(os.path.realpath(__file__))
+service_conf = os.path.join(work_dir, 'conf/service.conf')
+
+config = util.get_config(service_conf, 'celery')
+
+celery = Celery('tasks', broker=config['redis_host'])
 platforms.C_FORCE_ROOT = True  
 
-mail_host = 'smtp.163.com'
-mail_user = '18878774260@163.com'
-mail_pass = 'LUOhui123456'
-mail_postfix = '163.com'
+mail_host = config['mail_host']
+mail_user = config['mail_user']
+mail_pass = config['mail_pass']
+mail_postfix = config['mail_postfix']
 
 
 @celery.task
