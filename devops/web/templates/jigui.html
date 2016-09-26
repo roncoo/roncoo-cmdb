@@ -1,0 +1,204 @@
+{% extends "layout.html" %}
+            
+{% block breadcrumb %}
+<li><a href="#">CMDB</a><span class="divider"></span></li>
+<li class="active">IDC拓扑</li>
+{% endblock %}  
+                
+{% block body %}
+
+<!-- saved from url=(0026)http://blog.liuts.com/idc/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<title>龙果学院</title>
+<script src="/static/vendor/server_top.js" language="javascript"></script><style type="text/css">
+
+<!--
+
+body {
+
+	margin-left: 0px;
+
+	margin-top: 0px;
+
+	margin-right: 0px;
+
+	margin-bottom: 0px;
+
+}
+
+.jjtable {
+
+	border-top-width: 0px;
+
+	border-right-width: 0px;
+
+	border-bottom-width: 0px;
+
+	border-left-width: 0px;
+
+	border-top-style: solid;
+
+	border-right-style: solid;
+
+	border-bottom-style: solid;
+
+	border-left-style: solid;
+
+	border-top-color: #CCCCCC;
+
+	border-right-color: #999999;
+
+	border-bottom-color: #999999;
+
+	border-left-color: #CCCCCC;
+
+}
+
+.jgtable {
+
+	border-top-width: 0px;
+
+	border-right-width: 0px;
+
+	border-bottom-width: 1px;
+
+	border-left-width: 0px;
+
+	border-bottom-style: solid;
+
+	border-bottom-color: #999999;
+
+	veritical-align: bottom;
+
+}
+
+.jgtitle {
+
+	color: #ffffff;
+
+	font-weight: bold;
+
+}
+
+.big_title {color: #FFFFFF;font-size:13px;}
+
+-->
+
+</style></head>
+
+
+
+<body>
+
+<div id="content" style="width:1058px;margin:0 auto;"></div>
+<script src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
+<script>
+  $(function(){
+  var arr = new Array();
+
+  url = "/listapi?method="+"jigui"
+  $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data.result)   //Object {count: 3, code: 0, users: Array[3]}
+       if (data['code']== 0){
+
+var data = data.result
+
+
+for (var i = 0; i < data.length; i++) {
+  var item1 = data[i];
+  var cabinet_name = item1.cabinet_name.split('-');
+  var i1 = parseInt(cabinet_name[0])-1;
+  var i2 = parseInt(cabinet_name[1])-1;
+  var i3 = parseInt(item1.cabinet_pos)-1;
+
+  if (arr[i1] && arr[i1][i2]){
+    arr[i1][i2][i3] = data[i];
+  } 
+  else if (arr[i1]){
+    var item = new Array(10);
+    item[i3] = data[i];
+    arr[i1][i2] = item;
+  } 
+  else{
+    var item3 = new Array(10);
+    var item2 = new Array(7);
+    item3[i3] = data[i];
+    item2[i2] = item3;
+    arr[i1] = item2;
+  } 
+  
+}
+
+var htmlPanel = "";
+
+// 遍历机子
+function eachJZ(jz){
+  var html = '';
+  if(!jz) jz = new Array(10);
+  for (var i = 0; i < jz.length; i++) {
+    if(jz[i]){
+	console.log(jz[i]['ip'])
+
+       html +=' <tr>'
+              +'    <td class="jgtable" align="center" height="30" valign="bottom">'
+              +'    <img src="/static/images/serverico/'+jz[i].host_status+'.gif" style="vertical-align: bottom;" onmouseover="displayDIV('+"'box"+jz[i].ip+"'"+'); return false" onmouseout="hiddenDIV('+"'box"+jz[i].ip+"'"+'); return false" height="12" width="127">' 
+              +'    <div id="box'+jz[i].ip+'" style="border-style: outset; border-width: 1px 2px 2px 1px; display: none; position: absolute; width: 200px; text-align: left; background: none 0% 0% repeat scroll rgb(255, 255, 255);">'
+              +'    <table cellpadding="3" cellspacing="1">'
+              +'      <tbody>'
+              +'        <tr>'
+              +'          <td>IP:' + jz[i].ip +'<br>' + '系统:' + jz[i].os+ '<br>' + '位置:' + jz[i].cabinet_pos + '<br>' + '业务线:' + jz[i].server_purpose +'<br>' + '机型:' + jz[i].host_models + '<br>'
+              +'          </td>'
+              +'        </tr>'
+              +'      </tbody>'
+              +'    </table>'
+              +'    </div>'
+              +'    &nbsp;</td>'
+              +'  </tr>'
+    }else{
+      html+='<tr><td class="jgtable" align="center" height="30" valign="bottom"></td></tr>'
+    }
+  }
+  return html;
+}
+// 遍历机柜
+function eachJG(jg){
+  var html = '';
+  for (var i = 0; i < jg.length; i++) {
+      html += '<td background="/static/images/serverico/jg.gif" bgcolor="#eeeeee" width="147">'
+              +'  <table border="0" cellpadding="1" cellspacing="0" height="440" width="99%">'
+              +'    <tbody>'
+              +'      <tr>'
+              +'        <td class="jgtable" align="center" height="30" valign="top"><font class="jgtitle">0'+(i+1)+'</font></td>'
+              + eachJZ(jg[i])
+              +'        </tr>'
+              +'     </tbody>'
+              +'   </table>'
+              +'</td>'
+  }
+  return html;
+}
+
+// 遍历机柜行列
+for (var i = 0; i < arr.length; i++) {
+  if(arr[i]){
+    htmlPanel +=  '<div align="center">0'+(i+1)+'排</div>'
+                  +'<table class="jjtable" bgcolor="#ffffff" border="0" cellpadding="1" cellspacing="3" width="1024">'
+                  +'  <tbody>'
+                  +'    <tr align="center" valign="top">'+eachJG(arr[i])+'</tr>'
+                  +'  </tbody>'
+                  +'</table><p>&nbsp;</p>';
+      }
+    }
+
+    $("#content").append(htmlPanel);
+   }
+  
+ })
+
+})
+</script>
+</body></html>
+{% endblock %}

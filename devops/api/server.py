@@ -60,6 +60,7 @@ def server_select(auth_info,**kwargs):
         fields = ['id','hostname','ip','vm_status','st','uuid','manufacturers','server_type','server_cpu','os','server_disk','server_mem','mac_address','manufacture_date','check_update_time','server_purpose','server_run','expire','server_up_time','idc_id','cabinet_id','supplier','supplier_phone']
         #将角色对应的p_id都转为name,最终返回的结果p_id的值都是name 
         res = app.config['cursor'].get_results('server', fields)
+	print res
 	for i in res: 
 	    i['check_update_time'] = str(i['check_update_time'])
 	    i['manufacture_date'] = str(i['manufacture_date'])

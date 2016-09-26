@@ -102,6 +102,17 @@ def cobbler(htmlname):
         return render_template(htmlname+'.html',errmsg=validate_result['errmsg'])
 
 
+#故障平台
+@app.route('/device/<htmlname>')
+def device(htmlname):
+    if session.get('author','nologin') == 'nologin':
+        return redirect('/login')
+    headers['authorization'] = session['author']
+    validate_result = json.loads(util.validate(session['author'], app.config['passport_key']))
+    if int(validate_result['code']) == 0:
+        return render_template(htmlname+'.html',info=session,user=session['user'])
+    else:
+        return render_template(htmlname+'.html',errmsg=validate_result['errmsg'])
 
 
 #第三方API接口页面

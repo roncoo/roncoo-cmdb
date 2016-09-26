@@ -174,7 +174,10 @@ button.detail{
             <li><!--资产平台-->
             <a href="#"><i class="fa fa-database fa-fw"></i>资产平台<span class="fa arrow"></span></a>
             <ul class="nav nav-second-level">
-                {% if info and 'cmdb' in info.perm %} 
+                {% if info and 'cmdb' in info.perm %}
+	        <li>
+                    <a href="/cmdb/jigui">监控概览</a>
+                </li>
                 <li> 
                     <a href="/cmdb/server">硬件资产</a>
                 </li>
@@ -215,10 +218,40 @@ button.detail{
             </ul>
             </li> <!--保障平台-->
 
+
+
+            <li><!--代码发布系统-->
+            <a href="#"><i class="fa fa-rocket fa-fw"></i>代码发布系统<span class="fa arrow"></span></a>
+            <ul class="nav nav-second-level">
+                {% if info and 'git' in info.perm %}
+                <li>
+                    <a href="/project/project">项目管理</a>
+                </li>
+                {% endif %}
+                {% if info and 'testing' in info.perm %}
+                <li>
+                    <a href="/project/testing">测试发布</a>
+                </li>
+                {% endif %}
+                {% if info and 'apply' in info.perm %}
+                <li>
+                    <a href="/project/apply">申请发布</a>
+                </li>
+                {% endif %}
+                {% if info and 'deploy' in info.perm %}
+                <li>
+                    <a href="/project/deploy">发布列表</a>
+                </li>  
+                 {% endif %}
+            </ul>    
+            </li> <!--代码发布系统结束-->
             <li><!--监控平台-->
             <a href="#"><i class="fa fa-eye fa-fw"></i>监控平台<span class="fa arrow"></span></a>
             <ul class="nav nav-second-level">
-                {% if info and 'zabbix' in info.perm %} 
+                {% if info and 'zabbix' in info.perm %}
+                <li> 
+                    <a href="/zabbix/#">zabbix监控</a>
+                </li>
 		<li>
                     <a href="/zabbix/jigui">监控概览</a>
                 </li>

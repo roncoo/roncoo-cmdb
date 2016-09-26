@@ -191,7 +191,30 @@ CREATE TABLE `server` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cmdb_hostid` int(11) DEFAULT NULL,
   `hostid` int(11) DEFAULT NULL,
-  `host` varchar(40) DEFAULT NULL,
+  `server_run` varchar(40) DEFAULT NULL,
   `ip` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+ CREATE TABLE `report` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(10) DEFAULT NULL,
+  `mail` varchar(20) DEFAULT NULL,
+  `server_run` varchar(40) DEFAULT NULL,
+  `ip` varchar(30) DEFAULT NULL,
+  `remark` text DEFAULT NULL, 
+  `reportime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ CREATE TABLE `mailtain` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(10) DEFAULT NULL,
+  `mail` varchar(20) DEFAULT NULL, 
+  `server_run` varchar(40) DEFAULT NULL,
+  `ip` varchar(30) DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `xiajia` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+ 

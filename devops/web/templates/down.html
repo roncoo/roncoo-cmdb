@@ -1,0 +1,349 @@
+{% extends "layout.html" %}
+
+{% block breadcrumb %}
+<li><a href="#">CMDB</a><span class="divider"></span></li>
+<li class="active">保障处理</li>
+{% endblock %}
+
+{% block body %}
+<div class="widget-box">
+   <div class="widget-title"> 
+      <h5 style="float:left;"><i classd="fa fa-table fa-fw"></i>报障列表</h5>
+   </div> <!--widget-title end-->
+    
+<!--添加故障模态窗-->
+<div id="addModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">添加故障</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <form class="form-horizontal" id="addForm" accept-charset="UTF-8">
+    <div class="control-group">
+        <label class="control-label col-sm-3">资产IP：</label>
+        <div class="col-sm-9">
+         <input type="text" name="ip" class="form-control"  datatype="*" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--资产IP-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">业务：</label>
+        <div class="col-sm-9">
+         <input type="text" name="server_run" class="form-control"  datatype="*" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--业务名称-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">发送邮箱：</label>
+        <div class="col-sm-9">
+         <input type="text" name="mail" class="form-control"  datatype="*" errormsg="必须是1-16个字符" />
+        </div>
+    </div> <!--发送邮箱-->
+        <div class="control-group">
+        <label class="control-label col-sm-3">备注：</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="3" class="form-control"  name="remark"></textarea>
+        </div>
+    </div>  <!--备注-->
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="submitbtn" >确认添加</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+
+      </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--下架动作模态窗-->
+<div id="updateModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">操作执行人</h4>
+	  </div><!--modal-header end-->
+
+    <div class="modal-body">
+    <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- foe error msg-->
+    <form class="form-horizontal" id="updateForm" accept-charset="UTF-8">
+    
+    <input type="hidden" id='upid' name="id">  <!--update need id-->
+    <div class="control-group">
+        <label class="control-label col-sm-3">操作IP：</label>
+        <div class="col-sm-9">
+         <input type="text" name="ip" id="upip" class="form-control"  datatype="*" errormsg="必须是2-16个字符" />
+        </div>
+    </div> <!--IP地址-->
+
+    <div class="control-group">
+        <label class="control-label col-sm-3">业务线：</label>
+        <div class="col-sm-9">
+         <input type="text" name="server_run" id="upserver_run" class="form-control"  datatype="*" errormsg="必须是2-16个字符" />
+        </div>
+    </div> <!--业务线-->
+
+    <div class="control-group">
+                <label class="control-label col-sm-3">抄送邮箱: </label>
+                <div class="col-sm-9">
+                <input  type="text" name="mail" id="upmail" class="form-control" datatype="s1-2" errormsg="必须是2-20个字符" />
+                </div >
+        </div> <!--发送邮件-->
+       <div class="control-group">
+        <label class="control-label col-sm-3">备注：</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="3" class="form-control"  name="remark" id="remark"></textarea>
+        </div>
+    </div>  <!--备注-->
+
+
+    <div class="form-group">
+         <div class="modal-footer">
+                <button class="btn btn-primary" id="upbtn" >确认更新</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+        </div>
+    </div>
+    </form> 
+   
+     </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--修改用户密码模态窗-->
+<div id="ChangePasswdModal" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">更改用户密码</h4>
+	  </div><!--modal-header end-->
+
+      <div class="modal-body">
+      <p hidden id="errorMsg" class="text-danger" style="color:red">更改用户密码</p> <!-- foe error msg-->
+        <form class="form-horizontal" id="ChangePasswdForm">
+        <input id="passwdid" type="hidden"  name="passwdid">  <!--update need id-->
+     	<div class="form-group">
+            <label class="col-sm-2 control-label">新密码</label>
+     		 <div class="col-sm-10">
+       		 	<input class="form-control" type="password"  name="changepasswd" />
+      		</div> 
+        </div>
+    	<div class="form-group">
+     		<div class="modal-footer">
+				<button class="btn btn-primary" >更新</button>
+				<button class="btn btn-warning" data-dismiss="modal">退出</button>
+         	</div> 
+      </div><!--button end-->
+     </form>
+   </div><!-- /.modal-body-->
+   </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+    <div class="widget-content">
+    <!--用户列表-->
+ 		<table id ="datatable"  class="table table-bordered table-striped table-hover">
+		<thead>
+			<tr>
+				<th>操作用户</th>
+				<th>IP</th>
+				<th>业务线</th>
+				<th>下架时间</th>
+				<th>备注</th>
+				<th>操作</th>	
+			</tr>
+		</thead> 
+		<tbody>
+		</tbody>
+	   </table>
+	</div><!--widget-content end-->
+
+</div><!--widget-box end-->
+{% endblock %}
+
+{% block js %}
+name='report'
+function datatable(){
+    $('#datatable').DataTable({
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上一页",
+                "sNext": "下一页",
+                "sLast": "末页"
+            }
+        }
+    });
+};
+/* list all data*/
+function list(){
+    url = "/listapi?method="+"maintain"
+    $.getJSON(url,function(data){
+       data=JSON.parse(data['result']); //object 
+       console.log(data)   //Object {count: 3, code: 0, users: Array[3]}
+       if (data['code']== 0){       
+           var str = ''
+           $.each(data.result,function(k,v){ 
+               str +='<tr class="odd gradeX">'+  
+               '<td>'+v['username']+'</td>'+  
+               '<td>'+v['ip']+'</td>'+  
+	       '<td>'+v['server_run']+'</td>'+ 
+	       '<td>'+v['xiajia']+'</td>'+ 
+	       '<td>'+v['remark']+'</td>'+
+	       '<td>'+ 
+               '<button class="btn btn-danger btn-sm delete-btn" data-id="'+v['id']+'">删除</button>'+
+               '</td>'+		
+               '</tr>'          
+           })       
+                $("tbody").html(str)
+                 datatable()
+            }else{
+                swal("error", data['errmsg'],"error")
+            }
+         })
+}
+
+list()
+
+/*点击按钮，显示添加IDC模态窗*/
+$("#addBtn").on('click',function(){
+    idclist()
+    $('#addModal').modal('show')
+})
+/*检查表单数据是否合法*/
+$("#addForm").Validform({
+    btnSubmit:"#submitbtn",
+    tiptype:3, 
+    datatype:{
+        "zh2-4" : /^[\u4E00-\u9FA5\uf900-\ufa2d]{2,4}$/,
+    }
+})
+/*cabinet添加*/
+$('#addForm').on('submit',function(){
+        var str = $('#addForm').serialize()
+        var data={'method':name,'formdata':str}
+        $.post('/addapi',data,function(data){ 
+            data=JSON.parse(data);   //将json串转换为对象，然后取值
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+                    swal({
+                        title:"success", 
+                        text:"添加IDC成功",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){
+                            $('#addModal').modal('hide')
+                            window.location.reload();
+                         })
+            }else{
+                swal("error","创建IDC失败," + data['errmsg'],"error")
+             }   /*if end*/
+         })  /*post end*/
+         return false;
+})  /*submit end*/
+
+
+/*点击按钮，更新操作进度状态*/
+$("tbody").on('click','.update-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+name+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+   	 swal({
+                        title:"success",
+                        text:"报障已经知悉",
+                        type:"success",
+                        confirmButtonText:'确定'
+                        },function(){ 
+                            window.location.reload();
+                         })         
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+}) // end for update
+
+/*点击下架按钮开始下架处理*/
+$("tbody").on('click','.down-btn',function(){
+    var id = $(this).attr('data-id')
+    var url = "/getapi?method="+"maintain"+"&id="+id
+    $.getJSON(url,function(data){
+      data = JSON.parse(data['result'])
+      console.log(data)
+      if (data['code']==0){
+	  $('#upid').val(data['result']['id'])
+          $('#upip').val(data['result']['ip'])
+          $('#upserver_run').val(data['result']['server_run'])
+          $('#upmail').val(data['result']['mail'])
+	  $('#updateModal').modal('show')
+      }else{
+          swal("Error", data['errmsg'], "error")
+      }
+    })
+}) // end for update
+
+/*maintain*/
+$('#updateForm').on('submit',function(){
+        var str = $('#updateForm').serialize()
+        var data = {'method':"maintain",'formdata':str}
+        $.post('/updateapi',data, function(data){  // data is string
+            data = JSON.parse(data)    //object
+            data = JSON.parse(data['result']) //object
+            console.log(data)
+            if (data['code']==0){
+            swal({
+                title:"success",
+                text:"更新成功",
+                type:"success",
+                confirmButtonText:'确定'
+                },function(){
+                    $('#updateModal').modal('hide')
+                    location.reload()
+                })
+            }else{
+                $('#uperrorMsg').html('Failed: '+data['errmsg']).show()
+            }
+        })
+            return false   //get data and end
+})  //submit form
+
+
+/*删除cabinet*/
+$("tbody").on('click','.delete-btn',function(){
+	if(confirm("是否确认删除？")){
+		var id = $(this).attr('data-id')
+		var url =  "/deleteapi?method="+"maintain"+"&id="+id
+        console.log(url)
+		$.getJSON(url,function(data){
+            data = JSON.parse(data['result'])
+			if (data['code']== 0 ){
+                swal({
+                    title:"success",
+                    text:"删除成功",
+                    type:"success",
+                    confirmButtonText:'删除成功'
+                    },function(){
+                        location.reload()
+                    })
+ 				
+			}else{
+				swal(data['errmsg'])
+			}
+    	})
+    }  // end confirm
+})   
+{% endblock %}

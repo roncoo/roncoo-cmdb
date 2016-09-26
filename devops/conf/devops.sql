@@ -192,3 +192,13 @@ CREATE TABLE `server` (
   `ip` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+ CREATE TABLE `Switch` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(50) DEFAULT NULL,
+  `device` varchar(40) DEFAULT NULL,
+  `port` int(8) DEFAULT NULL,
+  `cabinet` int(4) DEFAULT NULL,
+  `idc` int(4) DEFAULT NULL, 
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
