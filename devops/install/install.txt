@@ -1,5 +1,5 @@
 ****
-龙果学院开源项目:目前完成的功能：基于cobbler的二次开发，方便不会的机房和运维人员快速装机，CMDB的快速添加，zabbix 的模板管理，把CMDB同步到zabbix 数据库，然后批量绑定模板，删除维护周期，，，后期更新批量管理和发布系统
+龙果学院开源项目:目前完成的功能：基于cobbler的二次开发，方便不会的机房和运维人员快速装机，CMDB的快速添加，zabbix 的模板管理，把CMDB同步到zabbix 数据库，然后批量绑定模板，删除维护周期，后期更新批量管理,故障申报系统，图形生成
 
 ****
 
@@ -139,6 +139,14 @@ cobbler_password=123456
 zabbix_login_url = http://192.168.63.216/zabbix/index.php        ###zabbix登录URL
 zabbix_graph_url = http://192.168.63.216/zabbix/chart2.php       ###zabbix图形URL
 
+
+[celery]
+redis_host = redis://127.0.0.1:6379/0
+mail_host = smtp.163.com
+mail_user = xxx@163.com   ###自己的163账号
+mail_pass = xxxx          ###自己的163密码
+mail_postfix = 163.com
+
 8、要是没有安装zabbix之类的就把api目录下面的__init__文件加载模块注释掉，因为默认初始化会报错：
 cat api/__init__.py
 
@@ -156,10 +164,55 @@ mkdir /var/log/web/
 
 
 
-10、安装完成之后启动：
+
+
+10、安装异步发送邮件：celery + redis :
+
+10.1:安装redis并启动：
+yum install redis-server 
+
+service redis start
+
+10.2:安装celery并且后台启动：
+
+pip install celery
+pip install supervisor
+echo_supervisord_conf > /etc/supervisord.confg
+
+vim /etc/supervisord.conf
+ 
+在配置后面添加以下参数
+
+[program:celery]
+command=/devops/env/bin/celery worker -A tasks --loglevel=info   ###注意看自己的沙盒环境
+directory=/devops/roncoo-cmdb/devops                  ##这个目录就是tasks的父目录
+stdout_logfile=/var/log/celery.log                    ##日志存放目录  
+autostart=true
+autorestart=true
+redirect_stderr=true
+stopsignal=QUIT
+
+10.3：启动后台进程管理：
+
+/devops/env/bin/supervisord
+
+10.4:查看是否启动成功
+[root@drfdai www]# ps -ef |grep supervisor
+root     28656     1  0 04:52 ?        00:00:00 /usr/bin/python /usr/bin/supervisord
+root     28692  1542  0 04:53 pts/0    00:00:00 grep supervisor
+
+10.5：有进程启动之后就可以启动celery:
+启动celery：
+supervisorctl start celery
+
+查看是否已经启动：
+(env)[root@www api]# ps -ef | grep work
+root      9634  2296  0 15:19 ?        00:00:05 /devops/env/bin/python /devops/env/bin/celery worker -A tasks --loglevel=info
+
+11、安装完成之后启动：
 
 python runweb
 
 python runapi
 
-11、主机采集通过sysinfo.py来操作，采集主机之后，手工录入硬件资源
+12、主机采集通过sysinfo.py来操作，采集主机之后，手工录入硬件资源
