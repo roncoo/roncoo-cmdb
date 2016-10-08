@@ -99,26 +99,26 @@ def get_Memtotal():
         return a / 1024 
     
 
-def run():
-    data = {'device': 'huawei-5710', 'ip': '192.168.10.10','cabinet': 1,'idc':1,'port':38}
+def run(): 
+    data = {}
     res = {}
-##    data['hostname'] = get_hostname()
-#    data.update(get_innerIp(get_device_info()))
-#    cpuinfo = get_cpuinfo()
-#    data['server_cpu'] = "{cpu} {num}".format(**cpuinfo)
-#    data['server_disk'] = get_disk()
-#    data.update( get_Manufacturer())
-#    data['manufacture_date'] = get_rel_date()
-#    data['os'] = get_os_version()
-##    data['server_mem'] = get_Memtotal()
-#    if "VMware" in data['manufacturers']:
-#        data['vm_status'] = 0
-#    else:
-#        data['vm_status'] = 1
+    data['hostname'] = get_hostname()
+    data.update(get_innerIp(get_device_info()))
+    cpuinfo = get_cpuinfo()
+    data['server_cpu'] = "{cpu} {num}".format(**cpuinfo)
+    data['server_disk'] = get_disk()
+    data.update( get_Manufacturer())
+    data['manufacture_date'] = get_rel_date()
+    data['os'] = get_os_version()
+    data['server_mem'] = get_Memtotal()
+    if "VMware" in data['manufacturers']:
+        data['vm_status'] = 0
+    else:
+        data['vm_status'] = 1
     res['params']=data
     res['jsonrpc'] = "2.0"
     res["id"] = 1
-    res["method"]= "switch.add"
+    res["method"]= "server.radd"
  #   print res 
  #   for k,v in data.iteritems():
  #       print k, v
