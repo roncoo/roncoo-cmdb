@@ -184,8 +184,10 @@ CREATE TABLE `server` (
   `server_purpose` varchar(30) DEFAULT NULL,
   `host` int(11) DEFAULT NULL,
   `server_run` varchar(30) DEFAULT NULL,
+  `host_status` int(4) DEFAULT '1',
+  `host_models` varchar(10) DEFAULT '1U',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
  CREATE TABLE `zbhost` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -196,18 +198,19 @@ CREATE TABLE `server` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
- CREATE TABLE `report` (
+CREATE TABLE `report` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(10) DEFAULT NULL,
   `mail` varchar(20) DEFAULT NULL,
   `server_run` varchar(40) DEFAULT NULL,
   `ip` varchar(30) DEFAULT NULL,
-  `remark` text DEFAULT NULL, 
-  `reportime` datetime DEFAULT NULL,
+  `remark` text,
+  `reporttime` varchar(30) DEFAULT NULL,
+  `status` int(4) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
- CREATE TABLE `mailtain` (
+ CREATE TABLE `maintain` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(10) DEFAULT NULL,
   `mail` varchar(20) DEFAULT NULL, 
@@ -217,4 +220,13 @@ CREATE TABLE `server` (
   `xiajia` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
- 
+
+CREATE TABLE `switch` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(50) DEFAULT NULL,
+  `device` varchar(40) DEFAULT NULL,
+  `port` int(8) DEFAULT NULL,
+  `cabinet` int(4) DEFAULT NULL,
+  `idc` int(4) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 
