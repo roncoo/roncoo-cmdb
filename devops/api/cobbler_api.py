@@ -28,10 +28,8 @@ class CobblerAPI(object):
             "gateway-eth0"      : gateway,
             "subnet-eth0"       : subnet,
             "static-eth0"       : 1,
-            "dnsname-eth0"      :"114.114.114.114" 
-
-
-        }, self.token) 
+            "name-servers-eth0"      : "114.114.114.114,8.8.8.8", 
+            }, self.token) 
         self.remote.modify_system(system_id,"profile",profile,self.token) 
         self.remote.save_system(system_id, self.token) 
         try:
@@ -141,4 +139,5 @@ def system_remove(url,user,password,name):
     return ret
 if __name__ == '__main__':
   #  main()
-    print system_remove("xiaoluoge")
+    system =  CobblerAPI("http://192.168.63.182/cobbler_api","xiaoluo","123456")
+    print system.add_system("test",'192.168.63.102','00:50:54:2D:32:DE','centos-6.5-x86_64','192.168.10.254','255.255.255.0')
